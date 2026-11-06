@@ -1,0 +1,17 @@
+{
+  "name": "opengravity-ide",
+  "version": "1.0.0",
+  "description": "OpenGravity AI IDE - Open Source Chromium-based AI IDE powered by FreeLLMAPI and BYOK",
+  "main": "main.js",
+  "type": "commonjs",
+  "scripts": {
+    "build:all": "npm run build --prefix daemon && npm run build --prefix extension",
+    "pack:vsix": "npx @vscode/vsce package --no-dependencies --out dist/opengravity-0.1.0.vsix",
+    "dist:win": "electron-builder --win --x64 --publish never"
+  },
+  "devDependencies": {
+    "@vscode/vsce": "^3.2.1",
+    "electron": "^38.8.6",
+    "electron-builder": "^25.1.8"
+  }
+}
