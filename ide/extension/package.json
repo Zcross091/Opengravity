@@ -1,0 +1,143 @@
+{
+  "name": "opengravity",
+  "displayName": "OpenGravity AI",
+  "description": "Autonomous AI pair programming and ultra-fast ghost-text autocomplete powered by FreeLLMAPI and BYOK.",
+  "version": "0.1.0",
+  "publisher": "opengravity",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "AI",
+    "Chat",
+    "Programming Languages",
+    "Machine Learning"
+  ],
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "opengravity-sidebar",
+          "title": "OpenGravity",
+          "icon": "media/logo.svg"
+        }
+      ]
+    },
+    "views": {
+      "opengravity-sidebar": [
+        {
+          "type": "webview",
+          "id": "opengravity.chatView",
+          "name": "OpenGravity Agent"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "opengravity.openChat",
+        "title": "Focus Chat",
+        "category": "OpenGravity"
+      },
+      {
+        "command": "opengravity.inlineDiff.acceptHunk",
+        "title": "Accept AI Change",
+        "category": "OpenGravity",
+        "icon": "$(check)"
+      },
+      {
+        "command": "opengravity.inlineDiff.rejectHunk",
+        "title": "Reject AI Change",
+        "category": "OpenGravity",
+        "icon": "$(close)"
+      },
+      {
+        "command": "opengravity.openSettings",
+        "title": "Open Settings",
+        "category": "OpenGravity"
+      },
+      {
+        "command": "opengravity.toggleGhostText",
+        "title": "Toggle Autocomplete (Ghost Text)",
+        "category": "OpenGravity"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "opengravity.openChat",
+        "key": "ctrl+l",
+        "mac": "cmd+l"
+      },
+      {
+        "command": "opengravity.inlineDiff.acceptHunk",
+        "key": "alt+enter",
+        "mac": "alt+enter",
+        "when": "editorTextFocus && opengravity.hasActiveDiff"
+      },
+      {
+        "command": "opengravity.inlineDiff.rejectHunk",
+        "key": "alt+shift+enter",
+        "mac": "alt+shift+enter",
+        "when": "editorTextFocus && opengravity.hasActiveDiff"
+      }
+    ],
+    "configuration": {
+      "title": "OpenGravity",
+      "properties": {
+        "opengravity.serverPort": {
+          "type": "number",
+          "default": 38888,
+          "description": "Port of the local OpenGravity Agent daemon (opengravity-agentd)."
+        },
+        "opengravity.freeLlmUrl": {
+          "type": "string",
+          "default": "http://127.0.0.1:3001/v1",
+          "description": "Endpoint for FreeLLMAPI multi-provider aggregated token pool."
+        },
+        "opengravity.freeLlmApiKey": {
+          "type": "string",
+          "default": "freellmapi-default",
+          "description": "API Key for FreeLLMAPI router."
+        },
+        "opengravity.geminiApiKey": {
+          "type": "string",
+          "default": "",
+          "description": "Direct Google Gemini API Key (BYOK for Gemini 2.0 Pro / Ultra)."
+        },
+        "opengravity.anthropicApiKey": {
+          "type": "string",
+          "default": "",
+          "description": "Direct Anthropic API Key (BYOK for Claude 3.5 / 3.7 Sonnet)."
+        },
+        "opengravity.openaiApiKey": {
+          "type": "string",
+          "default": "",
+          "description": "Direct OpenAI API Key (BYOK for GPT-4o / o1 / o3)."
+        },
+        "opengravity.defaultModel": {
+          "type": "string",
+          "default": "gemini-2.0-flash",
+          "description": "Default reasoning model."
+        },
+        "opengravity.enableGhostText": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable real-time ghost text inline code completions."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "tsc -p ./",
+    "watch": "tsc -watch -p ./"
+  },
+  "devDependencies": {
+    "@types/node": "^20.18.0",
+    "@types/vscode": "^1.80.0",
+    "typescript": "^5.7.3"
+  }
+}
+

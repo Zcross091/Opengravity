@@ -1,0 +1,41 @@
+{
+  "nameShort": "OpenGravity",
+  "nameLong": "OpenGravity IDE",
+  "applicationName": "opengravity-ide",
+  "dataFolderName": ".opengravity-ide",
+  "win32MutexName": "opengravity-ide",
+  "win32DirName": "OpenGravity IDE",
+  "win32NameVersion": "OpenGravity IDE",
+  "win32RegValueName": "OpenGravityIDE",
+  "win32AppUserModelId": "OpenGravity.OpenGravityIDE",
+  "win32ShellNameShort": "OpenGravity",
+  "darwinBundleIdentifier": "org.opengravity.ide",
+  "linuxIconName": "opengravity-ide",
+  "licenseName": "MIT",
+  "licenseUrl": "https://github.com/freellmapi/opengravity/blob/main/LICENSE",
+  "serverLicenseUrl": "https://github.com/freellmapi/opengravity/blob/main/LICENSE",
+  "reportIssueUrl": "https://github.com/freellmapi/opengravity/issues",
+  "urlProtocol": "opengravity-ide",
+  "quality": "stable",
+  "ideVersion": "1.0.0",
+  "extensionsGallery": {
+    "serviceUrl": "https://open-vsx.org/vscode/gallery",
+    "itemUrl": "https://open-vsx.org/vscode/item",
+    "resourceUrlTemplate": "https://open-vsx.org/vscode/unpkg/{publisher}/{name}/{version}/{path}",
+    "controlUrl": "https://open-vsx.org/vscode/control"
+  },
+  "linkProtectionTrustedDomains": [
+    "https://open-vsx.org",
+    "https://github.com",
+    "https://freellmapi.co",
+    "http://127.0.0.1",
+    "http://localhost"
+  ],
+  "configurationDefaults": {
+    "workbench.colorTheme": "Default Dark Modern",
+    "editor.inlineSuggest.enabled": true,
+    "opengravity.enableGhostText": true,
+    "opengravity.defaultModel": "gemini-2.0-flash"
+  }
+}
+

@@ -1,5 +1,6 @@
 node_modules/
 dist/
+dist-ide/
 server/data/
 # Runtime data dir when the server is launched from the repo root (same
 # contents as server/data — DB + keyfile — so same rule).
