@@ -1,5 +1,6 @@
 appId: org.opengravity.ide
 productName: OpenGravity
+electronVersion: 33.2.1
 directories:
   output: dist-electron
 files:
@@ -16,12 +17,7 @@ win:
     - target: nsis
       arch:
         - x64
-    - target: zip
-      arch:
-        - x64
-  icon: extension/media/logo.svg
 nsis:
   artifactName: "OpenGravity-Setup-${version}.${ext}"
   oneClick: true
   deleteAppDataOnUninstall: false
-

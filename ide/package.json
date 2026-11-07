@@ -2,6 +2,7 @@
   "name": "opengravity-ide",
   "version": "1.0.0",
   "description": "OpenGravity AI IDE - Open Source Chromium-based AI IDE powered by FreeLLMAPI and BYOK",
+  "author": "OpenGravity Community",
   "main": "main.js",
   "type": "commonjs",
   "scripts": {
@@ -11,8 +12,7 @@
   },
   "devDependencies": {
     "@vscode/vsce": "^3.2.1",
-    "electron": "^38.8.6",
-    "electron-builder": "^25.1.8"
+    "electron": "33.2.1",
+    "electron-builder": "25.1.8"
   }
 }
-
