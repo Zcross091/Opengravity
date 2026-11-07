@@ -24,3 +24,4 @@ nsis:
   artifactName: "OpenGravity-Setup-${version}.${ext}"
   oneClick: true
   deleteAppDataOnUninstall: false
+
