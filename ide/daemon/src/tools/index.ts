@@ -117,47 +117,46 @@ export class ToolEngine {
             }
           }
         }
-      }
+      },
+      {
+        type: 'function',
+        function: {
+          name: 'list_adb_devices',
+          description: 'List connected Android devices via ADB.',
+          parameters: { type: 'object', properties: {} }
+        }
+      },
+      {
+        type: 'function',
+        function: {
+          name: 'start_adb_app',
+          description: 'Launch an Android app via ADB.',
+          parameters: {
+            type: 'object',
+            properties: {
+              packageName: { type: 'string', description: 'Android package name (e.g., com.example.app)' },
+              activity: { type: 'string', description: 'Activity to launch (e.g., .MainActivity)' }
             },
-        {
-          type: 'function',
-          function: {
-            name: 'list_adb_devices',
-            description: 'List connected Android devices via ADB.',
-            parameters: { type: 'object', properties: {} }
-          }
-        },
-        {
-          type: 'function',
-          function: {
-            name: 'start_adb_app',
-            description: 'Launch an Android app via ADB.',
-            parameters: {
-              type: 'object',
-              properties: {
-                packageName: { type: 'string', description: 'Android package name (e.g., com.example.app)' },
-                activity: { type: 'string', description: 'Activity to launch (e.g., .MainActivity)' }
-              },
-              required: ['packageName', 'activity']
-            }
-          }
-        },
-        {
-          type: 'function',
-          function: {
-            name: 'pull_adb_file',
-            description: 'Pull a file from an Android device using ADB.',
-            parameters: {
-              type: 'object',
-              properties: {
-                remotePath: { type: 'string', description: 'Path on device, e.g., /sdcard/file.txt' },
-                localPath: { type: 'string', description: 'Destination path on host machine' }
-              },
-              required: ['remotePath', 'localPath']
-            }
+            required: ['packageName', 'activity']
           }
         }
-      ];
+      },
+      {
+        type: 'function',
+        function: {
+          name: 'pull_adb_file',
+          description: 'Pull a file from an Android device using ADB.',
+          parameters: {
+            type: 'object',
+            properties: {
+              remotePath: { type: 'string', description: 'Path on device, e.g., /sdcard/file.txt' },
+              localPath: { type: 'string', description: 'Destination path on host machine' }
+            },
+            required: ['remotePath', 'localPath']
+          }
+        }
+      }
+    ];
   }
 
   public async executeTool(
@@ -223,6 +222,27 @@ export class ToolEngine {
           return { output: formatted || '(empty directory)' };
         }
 
+        case 'list_adb_devices': {
+          const { stdout } = await execAsync('adb devices', { cwd: this.workspaceRoot });
+          return { output: stdout.trim() || '(No devices detected)' };
+        }
+
+        case 'start_adb_app': {
+          const packageName = args.packageName as string;
+          const activity = args.activity as string;
+          const cmd = `adb shell am start -n ${packageName}/${activity}`;
+          const { stdout, stderr } = await execAsync(cmd, { cwd: this.workspaceRoot });
+          return { output: [stdout, stderr].filter(Boolean).join('\n') || 'App started' };
+        }
+
+        case 'pull_adb_file': {
+          const remotePath = args.remotePath as string;
+          const localPath = args.localPath as string;
+          const cmd = `adb pull ${remotePath} ${localPath}`;
+          const { stdout, stderr } = await execAsync(cmd, { cwd: this.workspaceRoot });
+          return { output: [stdout, stderr].filter(Boolean).join('\n') || 'File pulled' };
+        }
+
         default:
           return { isError: true, output: `Unknown tool: ${name}` };
       }
@@ -231,4 +251,3 @@ export class ToolEngine {
     }
   }
 }
-
