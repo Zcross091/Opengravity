@@ -172,6 +172,24 @@ export class DaemonServer {
         break;
       }
 
+      case 'getBudgetStatus': {
+        const budget = await this.router.getBudgetStatus();
+        ws.send(JSON.stringify({ id: req.id, result: budget }));
+        break;
+      }
+
+      case 'executeAdbCommand': {
+        const toolName = req.params.tool as string;
+        const toolArgs = (req.params.args as Record<string, unknown>) || {};
+        try {
+          const output = await this.tools.executeTool(toolName, toolArgs);
+          ws.send(JSON.stringify({ id: req.id, result: { success: true, output } }));
+        } catch (err: unknown) {
+          ws.send(JSON.stringify({ id: req.id, error: { code: -32000, message: (err as Error).message } }));
+        }
+        break;
+      }
+
       default:
         ws.send(
           JSON.stringify({

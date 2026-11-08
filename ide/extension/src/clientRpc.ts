@@ -175,5 +175,20 @@ export class DaemonClient {
   }): Promise<{ completion: string; latencyMs: number }> {
     return this.send('autocomplete', params);
   }
+
+  public async getBudgetStatus(): Promise<{
+    usedTokens: number;
+    totalBudget: number;
+    percentage: number;
+    poolName: string;
+    isFree: boolean;
+  }> {
+    return this.send('getBudgetStatus');
+  }
+
+  public async executeAdb(tool: string, args: Record<string, unknown> = {}): Promise<string> {
+    const res = await this.send<{ success: boolean; output: string }>('executeAdbCommand', { tool, args });
+    return res.output;
+  }
 }
 

@@ -46,6 +46,29 @@ export class OpenGravityWebviewProvider implements vscode.WebviewViewProvider {
         case 'openSettings':
           vscode.commands.executeCommand('workbench.action.openSettings', 'opengravity');
           break;
+        case 'requestBudget': {
+          try {
+            const budget = await this.client.getBudgetStatus();
+            this.postMessage({ type: 'budgetUpdate', budget });
+          } catch {
+            // Keep existing display if daemon offline
+          }
+          break;
+        }
+        case 'saveSettings': {
+          const cfg = vscode.workspace.getConfiguration('opengravity');
+          if (data.settings) {
+            if (data.settings.freeLlmUrl !== undefined) {
+              await cfg.update('freeLlmUrl', data.settings.freeLlmUrl, vscode.ConfigurationTarget.Global);
+            }
+            if (data.settings.defaultModel !== undefined) {
+              await cfg.update('defaultModel', data.settings.defaultModel, vscode.ConfigurationTarget.Global);
+            }
+          }
+          this.client.syncCredentials();
+          this.postMessage({ type: 'status', text: 'Settings updated successfully.' });
+          break;
+        }
       }
     });
   }
@@ -142,10 +165,15 @@ export class OpenGravityWebviewProvider implements vscode.WebviewViewProvider {
     }
     .header {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
+      flex-direction: column;
+      gap: 6px;
       padding-bottom: 8px;
       border-bottom: 1px solid var(--border);
+    }
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
     .title {
       font-weight: bold;
@@ -161,6 +189,65 @@ export class OpenGravityWebviewProvider implements vscode.WebviewViewProvider {
       padding: 2px 6px;
       border-radius: 4px;
       font-weight: 600;
+    }
+    .settings-btn {
+      background: none;
+      border: none;
+      color: var(--fg);
+      cursor: pointer;
+      font-size: 14px;
+      opacity: 0.7;
+    }
+    .settings-btn:hover {
+      opacity: 1;
+    }
+    .budget-section {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .budget-label-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: #9aa0a6;
+    }
+    progress {
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      overflow: hidden;
+      border: none;
+      background: rgba(255, 255, 255, 0.1);
+    }
+    progress::-webkit-progress-bar {
+      background: rgba(255, 255, 255, 0.1);
+    }
+    progress::-webkit-progress-value {
+      background: var(--accent);
+      border-radius: 3px;
+    }
+    .settings-drawer {
+      display: none;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px;
+      margin-top: 8px;
+      font-size: 12px;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .settings-drawer.open {
+      display: flex;
+    }
+    .settings-drawer input {
+      background: var(--bg);
+      color: var(--fg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 4px 6px;
+      font-size: 12px;
     }
     .model-selector {
       margin-top: 8px;
@@ -263,11 +350,27 @@ export class OpenGravityWebviewProvider implements vscode.WebviewViewProvider {
 </head>
 <body>
   <div class="header">
-    <div class="title">
-      <span>🌌 OpenGravity</span>
-      <span class="badge-pool">7.4B Free Pool</span>
+    <div class="header-top">
+      <div class="title">
+        <span>🌌 OpenGravity</span>
+        <span class="badge-pool" id="poolBadge">Free Pool</span>
+      </div>
+      <button class="settings-btn" id="toggleSettingsBtn" title="Settings">⚙️</button>
+    </div>
+    <div class="budget-section">
+      <div class="budget-label-row">
+        <span>Token Budget</span>
+        <span id="budgetPctText">0%</span>
+      </div>
+      <progress id="tokenProgress" value="0" max="100"></progress>
     </div>
     <div class="stats-bar" id="statsBar">Saved: 0 tokens</div>
+  </div>
+
+  <div class="settings-drawer" id="settingsDrawer">
+    <label><b>FreeLLMAPI Endpoint:</b></label>
+    <input id="endpointInput" type="text" placeholder="http://127.0.0.1:3001/v1" />
+    <button class="btn" id="btnSaveDrawer" style="align-self: flex-end; padding: 4px 10px;">Save Endpoint</button>
   </div>
 
   <div class="model-selector">
@@ -302,8 +405,38 @@ export class OpenGravityWebviewProvider implements vscode.WebviewViewProvider {
     const btnStop = document.getElementById('btnStop');
     const modelSelect = document.getElementById('modelSelect');
     const statsBar = document.getElementById('statsBar');
+    const tokenProgress = document.getElementById('tokenProgress');
+    const budgetPctText = document.getElementById('budgetPctText');
+    const poolBadge = document.getElementById('poolBadge');
+    const toggleSettingsBtn = document.getElementById('toggleSettingsBtn');
+    const settingsDrawer = document.getElementById('settingsDrawer');
+    const endpointInput = document.getElementById('endpointInput');
+    const btnSaveDrawer = document.getElementById('btnSaveDrawer');
 
     let currentAssistantDiv = null;
+
+    toggleSettingsBtn.addEventListener('click', () => {
+      settingsDrawer.classList.toggle('open');
+    });
+
+    btnSaveDrawer.addEventListener('click', () => {
+      const url = endpointInput.value.trim();
+      vscode.postMessage({
+        type: 'saveSettings',
+        settings: { freeLlmUrl: url }
+      });
+      settingsDrawer.classList.remove('open');
+    });
+
+    modelSelect.addEventListener('change', () => {
+      vscode.postMessage({
+        type: 'saveSettings',
+        settings: { defaultModel: modelSelect.value }
+      });
+    });
+
+    // Request initial budget status
+    vscode.postMessage({ type: 'requestBudget' });
 
     function appendMessage(role, text) {
       const div = document.createElement('div');
@@ -371,6 +504,18 @@ export class OpenGravityWebviewProvider implements vscode.WebviewViewProvider {
           if (msg.freeTokensTotal) {
             statsBar.innerText = 'Saved: ~' + msg.freeTokensTotal.toLocaleString() + ' free tokens (' + msg.modelUsed + ')';
           }
+          break;
+        case 'budgetUpdate':
+          if (msg.budget) {
+            tokenProgress.value = msg.budget.percentage || 0;
+            budgetPctText.innerText = (msg.budget.percentage || 0) + '%';
+            if (msg.budget.poolName) {
+              poolBadge.innerText = msg.budget.poolName;
+            }
+          }
+          break;
+        case 'status':
+          appendMessage('assistant', 'ℹ️ ' + msg.text);
           break;
         case 'error':
           btnStop.style.display = 'none';

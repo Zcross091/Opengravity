@@ -63,6 +63,21 @@
         "command": "opengravity.toggleGhostText",
         "title": "Toggle Autocomplete (Ghost Text)",
         "category": "OpenGravity"
+      },
+      {
+        "command": "opengravity.adb.listDevices",
+        "title": "List Connected ADB Devices",
+        "category": "OpenGravity"
+      },
+      {
+        "command": "opengravity.adb.startApp",
+        "title": "Launch Android App via ADB",
+        "category": "OpenGravity"
+      },
+      {
+        "command": "opengravity.adb.pullFile",
+        "title": "Pull File from Device via ADB",
+        "category": "OpenGravity"
       }
     ],
     "keybindings": [

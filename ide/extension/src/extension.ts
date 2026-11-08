@@ -60,6 +60,48 @@ export async function activate(context: vscode.ExtensionContext) {
       vscode.window.showInformationMessage(
         `OpenGravity Ghost Text: ${!current ? 'Enabled' : 'Disabled'}`
       );
+    }),
+
+    vscode.commands.registerCommand('opengravity.adb.listDevices', async () => {
+      try {
+        const out = await client.executeAdb('list_adb_devices');
+        vscode.window.showInformationMessage(`[ADB Devices]\n${out}`);
+      } catch (err: unknown) {
+        vscode.window.showErrorMessage(`ADB error: ${(err as Error).message}`);
+      }
+    }),
+
+    vscode.commands.registerCommand('opengravity.adb.startApp', async () => {
+      const pkg = await vscode.window.showInputBox({
+        prompt: 'Enter Android package name to launch (e.g. com.example.app)',
+        placeHolder: 'com.example.app'
+      });
+      if (!pkg) return;
+      try {
+        const out = await client.executeAdb('start_adb_app', { package: pkg });
+        vscode.window.showInformationMessage(out);
+      } catch (err: unknown) {
+        vscode.window.showErrorMessage(`ADB error: ${(err as Error).message}`);
+      }
+    }),
+
+    vscode.commands.registerCommand('opengravity.adb.pullFile', async () => {
+      const remote = await vscode.window.showInputBox({
+        prompt: 'Enter remote path on device',
+        placeHolder: '/sdcard/Download/file.txt'
+      });
+      if (!remote) return;
+      const local = await vscode.window.showInputBox({
+        prompt: 'Enter local destination path',
+        placeHolder: './downloaded_file.txt'
+      });
+      if (!local) return;
+      try {
+        const out = await client.executeAdb('pull_adb_file', { remotePath: remote, localPath: local });
+        vscode.window.showInformationMessage(out);
+      } catch (err: unknown) {
+        vscode.window.showErrorMessage(`ADB error: ${(err as Error).message}`);
+      }
     })
   );
 

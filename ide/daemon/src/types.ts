@@ -81,7 +81,9 @@ export interface ClientRequest {
     | 'abort'
     | 'updateCredentials'
     | 'applyDiffHunk'
-    | 'listModels';
+    | 'listModels'
+    | 'getBudgetStatus'
+    | 'executeAdbCommand';
   params: Record<string, unknown>;
 }
 
