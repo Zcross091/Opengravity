@@ -118,7 +118,46 @@ export class ToolEngine {
           }
         }
       }
-    ];
+            },
+        {
+          type: 'function',
+          function: {
+            name: 'list_adb_devices',
+            description: 'List connected Android devices via ADB.',
+            parameters: { type: 'object', properties: {} }
+          }
+        },
+        {
+          type: 'function',
+          function: {
+            name: 'start_adb_app',
+            description: 'Launch an Android app via ADB.',
+            parameters: {
+              type: 'object',
+              properties: {
+                packageName: { type: 'string', description: 'Android package name (e.g., com.example.app)' },
+                activity: { type: 'string', description: 'Activity to launch (e.g., .MainActivity)' }
+              },
+              required: ['packageName', 'activity']
+            }
+          }
+        },
+        {
+          type: 'function',
+          function: {
+            name: 'pull_adb_file',
+            description: 'Pull a file from an Android device using ADB.',
+            parameters: {
+              type: 'object',
+              properties: {
+                remotePath: { type: 'string', description: 'Path on device, e.g., /sdcard/file.txt' },
+                localPath: { type: 'string', description: 'Destination path on host machine' }
+              },
+              required: ['remotePath', 'localPath']
+            }
+          }
+        }
+      ];
   }
 
   public async executeTool(
